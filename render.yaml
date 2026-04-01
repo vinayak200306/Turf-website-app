@@ -1,11 +1,12 @@
 services:
   - type: web
     name: fielddoor-backend
-    runtime: docker
+    runtime: node
     plan: starter
     region: singapore
-    dockerfilePath: ./fielddoor-backend/Dockerfile
-    dockerContext: ./fielddoor-backend
+    rootDir: fielddoor-backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && node dist/src/server.js
     autoDeployTrigger: commit
     healthCheckPath: /api/v1/health
     envVars:
@@ -30,11 +31,11 @@ services:
       - key: REFRESH_TOKEN_EXPIRY
         value: 7d
       - key: RAZORPAY_KEY_ID
-        sync: false
+        value: ""
       - key: RAZORPAY_KEY_SECRET
-        sync: false
+        value: ""
       - key: RAZORPAY_WEBHOOK_SECRET
-        sync: false
+        value: ""
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
