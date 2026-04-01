@@ -4,21 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#120904">
-  <title>Field Door | Activities</title>
-  <meta name="description" content="Explore the activities available at Karnataka Bhavan Turf Ground.">
+  <title>Field Door | Bookings</title>
+  <meta name="description" content="See the list of bookings for Karnataka Bhavan Turf Ground.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
-<body data-page="arenas">
+<body data-page="bookings">
   <div class="site-shell">
     <header class="site-header" data-header>
       <div class="container site-header__inner">
         <a class="brand" href="./index.html" aria-label="Field Door home">
           <span class="brand__mark"><img src="./assets/field-door-logo.png" alt="Field Door logo"></span>
           <span>
-            <span class="brand__eyebrow">Karnataka Bhavan Turf Ground</span>
+            <span class="brand__eyebrow">Booking history</span>
             <span class="brand__name">Field Door</span>
           </span>
         </a>
@@ -38,18 +38,18 @@
         <div class="container">
           <article class="page-banner__card glass-card fade-up">
             <div>
-              <span class="eyebrow">Activity menu</span>
-              <h1>PLAY YOUR <span>WAY HERE</span></h1>
-              <p>Karnataka Bhavan Turf Ground offers six activities under one booking experience, so users can move from browsing to payment without switching venues.</p>
+              <span class="eyebrow">Bookings screen</span>
+              <h1>TRACK YOUR <span>RESERVATIONS</span></h1>
+              <p>Users can review booking references, activities, slot timing, payment state, and status indicators from a dedicated bookings screen.</p>
             </div>
             <div class="page-banner__meta-grid">
               <div class="metric-card">
-                <strong>6 Activities</strong>
-                <span>All managed through one venue flow</span>
+                <strong>Confirmed</strong>
+                <span>Paid and ready bookings</span>
               </div>
               <div class="metric-card">
-                <strong>1 Ground</strong>
-                <span>Single-brand experience for the client</span>
+                <strong>Pending</strong>
+                <span>Drafts waiting for payment</span>
               </div>
             </div>
           </article>
@@ -58,36 +58,7 @@
 
       <section class="section">
         <div class="container">
-          <div class="section-heading fade-up">
-            <div>
-              <span class="section-heading__eyebrow">Choose an activity</span>
-              <h2>AVAILABLE AT <span>KARNATAKA BHAVAN</span></h2>
-              <p>Each activity card moves directly into booking with the selected activity carried into the summary.</p>
-            </div>
-          </div>
-          <div class="highlights-grid" data-activity-grid></div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="container detail-grid">
-          <div class="detail-copy fade-up">
-            <span class="eyebrow">Venue details</span>
-            <h2 style="margin: 18px 0 16px; font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px, 8vw, 72px); line-height: 0.92; letter-spacing: 0.05em;">ONE GROUND, <span class="accent-text">MULTIPLE EXPERIENCES</span></h2>
-            <p>The ground now reads as a destination product instead of a marketplace. That keeps the message cleaner for the client and easier for users to trust.</p>
-          </div>
-          <aside class="detail-side">
-            <article class="detail-card fade-up">
-              <h3>Included on-site</h3>
-              <div class="detail-list" style="margin-top: 16px;">
-                <div class="detail-item"><span>Floodlights</span><strong>Available</strong></div>
-                <div class="detail-item"><span>Parking</span><strong>Available</strong></div>
-                <div class="detail-item"><span>Changing rooms</span><strong>Available</strong></div>
-                <div class="detail-item"><span>Cafe counter</span><strong>Available</strong></div>
-                <div class="detail-item"><span>Equipment desk</span><strong>Available</strong></div>
-              </div>
-            </article>
-          </aside>
+          <div class="booking-list" data-bookings-list></div>
         </div>
       </section>
     </main>
@@ -98,7 +69,7 @@
           <a class="brand" href="./index.html">
             <span class="brand__mark"><img src="./assets/field-door-logo.png" alt="Field Door logo"></span>
             <span>
-              <span class="brand__eyebrow">Karnataka Bhavan Turf Ground</span>
+              <span class="brand__eyebrow">Booking history view</span>
               <span class="brand__name">Field Door</span>
             </span>
           </a>
@@ -114,7 +85,6 @@
         <div>
           <h3 class="footer-title">Account</h3>
           <div class="footer-list">
-            <a href="./bookings.html">Bookings</a>
             <a href="./profile.html">Profile</a>
           </div>
         </div>

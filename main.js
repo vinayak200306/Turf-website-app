@@ -1,62 +1,67 @@
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const apiBase = "";
+const storageKeys = {
+  draft: "fieldDoorBookingDraft",
+  bookings: "fieldDoorBookings"
+};
 
-const fallbackSports = [
-  { id: "sport-1", name: "Box Cricket", emoji: "🏏" },
-  { id: "sport-2", name: "Football", emoji: "⚽" },
-  { id: "sport-3", name: "Badminton", emoji: "🏸" },
-  { id: "sport-4", name: "Tennis", emoji: "🎾" }
+const venue = {
+  id: "karnataka-bhavan-turf-ground",
+  name: "Karnataka Bhavan Turf Ground",
+  location: "Karnataka Bhavan Campus, Bengaluru",
+  description:
+    "A single-destination sports venue designed for fast weekday bookings, weekend league sessions, and family activity nights.",
+  heroTitle: "BOOK KARNATAKA BHAVAN TURF GROUND",
+  heroText:
+    "Reserve slots for Box Cricket, Football, Skating, Go Karting, Tennis, and Paintball through one clean responsive experience.",
+  activities: [
+    { id: "box-cricket", name: "Box Cricket", price: 900, label: "Fast evening leagues" },
+    { id: "football", name: "Football", price: 1200, label: "Full ground availability" },
+    { id: "skating", name: "Skating", price: 450, label: "Beginner and advanced batches" },
+    { id: "go-karting", name: "Go Karting", price: 800, label: "Timed laps and group sessions" },
+    { id: "tennis", name: "Tennis", price: 700, label: "Private and duo play" },
+    { id: "paintball", name: "Paintball", price: 1100, label: "Weekend battle sessions" }
+  ],
+  amenities: ["Floodlights", "Parking", "Changing rooms", "Cafe counter", "Equipment desk", "Coach support"],
+  supportEmail: "hello@fielddoor.in",
+  supportPhone: "+91 90000 11111"
+};
+
+const defaultSlots = [
+  { id: "slot-1", time: "06:00 AM - 07:00 AM", note: "Morning warm-up block" },
+  { id: "slot-2", time: "07:00 AM - 08:00 AM", note: "Popular morning block" },
+  { id: "slot-3", time: "08:00 AM - 09:00 AM", note: "Team session slot" },
+  { id: "slot-4", time: "05:00 PM - 06:00 PM", note: "After work session" },
+  { id: "slot-5", time: "06:00 PM - 07:00 PM", note: "Prime-time booking" },
+  { id: "slot-6", time: "07:00 PM - 08:00 PM", note: "Full squad block" }
 ];
 
-const fallbackVenues = [
+const sampleBookings = [
   {
-    id: "venue-galaxy-zone",
-    name: "Galaxy Zone",
-    city: "Bengaluru",
-    addressLine: "Koramangala",
-    avgRating: 4.8,
-    availableSlotCount: 12,
-    priceRange: { min: 800, max: 1000 },
-    sports: [{ sportId: "sport-1", sport: fallbackSports[0], pricePerHour: 800 }]
+    id: "FD-20260402-A1B2",
+    activity: "Football",
+    date: "2026-04-05",
+    slot: "06:00 PM - 07:00 PM",
+    amount: 1436,
+    status: "Confirmed",
+    payment: "Paid"
   },
   {
-    id: "venue-skyline",
-    name: "Skyline Sports Hub",
-    city: "Bengaluru",
-    addressLine: "HSR Layout",
-    avgRating: 4.9,
-    availableSlotCount: 8,
-    priceRange: { min: 900, max: 1200 },
-    sports: [{ sportId: "sport-2", sport: fallbackSports[1], pricePerHour: 1000 }]
-  },
-  {
-    id: "venue-velocity",
-    name: "Velocity Arena",
-    city: "Pune",
-    addressLine: "Balewadi",
-    avgRating: 4.7,
-    availableSlotCount: 5,
-    priceRange: { min: 1100, max: 1350 },
-    sports: [{ sportId: "sport-2", sport: fallbackSports[1], pricePerHour: 1200 }]
-  },
-  {
-    id: "venue-nexus",
-    name: "Nexus Arena",
-    city: "Mumbai",
-    addressLine: "Lower Parel",
-    avgRating: 4.6,
-    availableSlotCount: 7,
-    priceRange: { min: 1500, max: 1800 },
-    sports: [{ sportId: "sport-3", sport: fallbackSports[2], pricePerHour: 1500 }]
+    id: "FD-20260402-C3D4",
+    activity: "Box Cricket",
+    date: "2026-04-09",
+    slot: "07:00 PM - 08:00 PM",
+    amount: 1082,
+    status: "Pending",
+    payment: "Awaiting payment"
   }
 ];
 
 const state = {
-  sports: fallbackSports,
-  venues: fallbackVenues,
-  selectedSport: "all",
-  selectedSlot: null
+  selectedActivity: venue.activities[0].id,
+  selectedSlot: defaultSlots[1].time
 };
+
+const formatCurrency = (amount) => `Rs ${Number(amount || 0).toLocaleString("en-IN")}`;
 
 const showToast = (message) => {
   const toast = document.querySelector("[data-toast]");
@@ -69,10 +74,40 @@ const showToast = (message) => {
   window.clearTimeout(showToast.timer);
   showToast.timer = window.setTimeout(() => {
     toast.classList.remove("is-visible");
-  }, 2400);
+  }, 2600);
 };
 
 showToast.timer = 0;
+
+const getStoredBookings = () => {
+  try {
+    const raw = window.localStorage.getItem(storageKeys.bookings);
+    if (!raw) {
+      return sampleBookings.slice();
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : sampleBookings.slice();
+  } catch {
+    return sampleBookings.slice();
+  }
+};
+
+const saveStoredBookings = (bookings) => {
+  window.localStorage.setItem(storageKeys.bookings, JSON.stringify(bookings));
+};
+
+const getDraftBooking = () => {
+  try {
+    const raw = window.localStorage.getItem(storageKeys.draft);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveDraftBooking = (draft) => {
+  window.localStorage.setItem(storageKeys.draft, JSON.stringify(draft));
+};
 
 const createRipple = (element, event) => {
   const rect = element.getBoundingClientRect();
@@ -86,6 +121,10 @@ const createRipple = (element, event) => {
 
 const initRipples = () => {
   document.querySelectorAll("[data-ripple]").forEach((element) => {
+    if (element.dataset.rippleBound === "true") {
+      return;
+    }
+    element.dataset.rippleBound = "true";
     element.addEventListener("click", (event) => createRipple(element, event));
   });
 };
@@ -96,12 +135,9 @@ const initHeader = () => {
     return;
   }
 
-  const syncHeader = () => {
-    header.classList.toggle("is-scrolled", window.scrollY > 24);
-  };
-
-  syncHeader();
-  window.addEventListener("scroll", syncHeader, { passive: true });
+  const sync = () => header.classList.toggle("is-scrolled", window.scrollY > 24);
+  sync();
+  window.addEventListener("scroll", sync, { passive: true });
 };
 
 const initRevealObserver = () => {
@@ -123,12 +159,12 @@ const initRevealObserver = () => {
       entry.target.classList.add("is-visible");
       obs.unobserve(entry.target);
     });
-  }, { threshold: 0.18 });
+  }, { threshold: 0.15 });
 
   targets.forEach((target) => observer.observe(target));
 };
 
-const initGsapHero = () => {
+const initHeroMotion = () => {
   if (!window.gsap || prefersReducedMotion) {
     return;
   }
@@ -137,263 +173,37 @@ const initGsapHero = () => {
     gsap.registerPlugin(ScrollTrigger);
   }
 
-  const media = document.querySelector("[data-hero-media]");
-  const copy = document.querySelector("[data-hero-copy]");
-  const metrics = document.querySelectorAll("[data-hero-metric]");
+  const heroCopy = document.querySelector("[data-hero-copy]");
+  const heroMedia = document.querySelector("[data-hero-media]");
+  const heroMetrics = document.querySelectorAll("[data-hero-metric]");
 
-  if (copy) {
-    gsap.fromTo(copy, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" });
+  if (heroCopy) {
+    gsap.fromTo(heroCopy, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.85, ease: "power3.out" });
   }
 
-  if (metrics.length) {
-    gsap.fromTo(metrics, { opacity: 0, y: 20 }, {
+  if (heroMetrics.length) {
+    gsap.fromTo(heroMetrics, { opacity: 0, y: 18 }, {
       opacity: 1,
       y: 0,
       duration: 0.55,
       ease: "power3.out",
       stagger: 0.08,
-      delay: 0.25
+      delay: 0.2
     });
   }
 
-  if (media && window.ScrollTrigger) {
-    gsap.fromTo(media, { y: 0, scale: 1 }, {
-      y: 40,
-      scale: 1.03,
+  if (heroMedia && window.ScrollTrigger) {
+    gsap.to(heroMedia, {
+      y: 34,
+      scale: 1.02,
       ease: "none",
       scrollTrigger: {
-        trigger: media,
+        trigger: heroMedia,
         start: "top bottom",
         end: "bottom top",
         scrub: true
       }
     });
-  }
-};
-
-const buildVenueHref = (venue) => {
-  const primarySport = venue.sports?.[0];
-  const params = new URLSearchParams({
-    venue: venue.name,
-    venueId: venue.id,
-    sport: primarySport?.sport?.name ?? primarySport?.name ?? "Box Cricket",
-    sportId: primarySport?.sportId ?? primarySport?.id ?? ""
-  });
-  return `./booking.html?${params.toString()}`;
-};
-
-const renderCategoryRail = (sports = []) => {
-  const rail = document.querySelector("[data-category-rail]");
-  if (!rail) {
-    return;
-  }
-
-  const items = [{ id: "all", name: "All Sports", emoji: "•" }, ...sports];
-  rail.innerHTML = items.map((sport) => `
-    <button
-      class="category-pill ${sport.id === state.selectedSport ? "is-active" : ""}"
-      type="button"
-      data-category-pill
-      data-sport-id="${sport.id}"
-      data-ripple
-    >
-      <span>${sport.emoji ?? "•"}</span>
-      <span>${sport.name}</span>
-    </button>
-  `).join("");
-
-  rail.querySelectorAll("[data-category-pill]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.selectedSport = button.dataset.sportId || "all";
-      renderCategoryRail(state.sports);
-      renderVenueGrids();
-    });
-  });
-};
-
-const createVenueCard = (venue) => {
-  const primarySport = venue.sports?.[0];
-  const href = buildVenueHref(venue);
-  const minPrice = venue.priceRange?.min ?? primarySport?.pricePerHour ?? 0;
-
-  return `
-    <article class="arena-card fade-up">
-      <div class="arena-card__media">
-        <div class="arena-card__poster"></div>
-      </div>
-      <div class="arena-card__body">
-        <div class="arena-card__topline">
-          <h3 class="arena-card__title">${venue.name}</h3>
-          <span class="inline-chip chip--accent">★ ${Number(venue.avgRating ?? 0).toFixed(1)}</span>
-        </div>
-        <p class="arena-card__location">${venue.addressLine}, ${venue.city}</p>
-        <div class="arena-card__badges">
-          <span class="chip">${primarySport?.sport?.name ?? "Multi-sport"}</span>
-          <span class="chip">${venue.availableSlotCount ?? 0} live slots</span>
-        </div>
-        <div class="price-row" style="margin-top: 18px;">
-          <strong class="price">₹${minPrice}/hr</strong>
-          <a class="button button--primary button--small" href="${href}" data-ripple>Book now</a>
-        </div>
-      </div>
-    </article>
-  `;
-};
-
-const renderVenueGrids = () => {
-  const targets = document.querySelectorAll("[data-venue-grid]");
-  if (!targets.length) {
-    return;
-  }
-
-  const filtered = state.selectedSport === "all"
-    ? state.venues
-    : state.venues.filter((venue) => venue.sports?.some((sport) => sport.sportId === state.selectedSport || sport.sport?.id === state.selectedSport));
-
-  targets.forEach((target) => {
-    const limit = Number(target.getAttribute("data-limit") || filtered.length);
-    target.innerHTML = filtered.slice(0, limit).map(createVenueCard).join("");
-  });
-
-  initRipples();
-  initRevealObserver();
-};
-
-const initContactForm = () => {
-  const form = document.querySelector("[data-contact-form]");
-  if (!form) {
-    return;
-  }
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    form.reset();
-    showToast("Message received. We will get back to you shortly.");
-  });
-};
-
-const initLoginForm = () => {
-  const form = document.querySelector("[data-login-form]");
-  if (!form) {
-    return;
-  }
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    showToast("Demo sign-in complete. Connect the live auth API next.");
-  });
-};
-
-const getQueryValue = (name) => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get(name) || "";
-};
-
-const populateBookingPage = () => {
-  const page = document.body.dataset.page;
-  if (page !== "booking") {
-    return;
-  }
-
-  const venue = getQueryValue("venue") || "Galaxy Zone";
-  const sport = getQueryValue("sport") || "Box Cricket";
-  const venueId = getQueryValue("venueId");
-  const sportId = getQueryValue("sportId");
-
-  const venueEl = document.querySelector("[data-booking-venue]");
-  const sportEl = document.querySelector("[data-booking-sport]");
-  const hiddenVenueId = document.querySelector('input[name="venueId"]');
-  const hiddenSportId = document.querySelector('input[name="sportId"]');
-  const ctaLinks = document.querySelectorAll("[data-booking-link]");
-
-  if (venueEl) {
-    venueEl.textContent = venue;
-  }
-  if (sportEl) {
-    sportEl.textContent = sport;
-  }
-  if (hiddenVenueId) {
-    hiddenVenueId.value = venueId;
-  }
-  if (hiddenSportId) {
-    hiddenSportId.value = sportId;
-  }
-
-  ctaLinks.forEach((link) => {
-    link.setAttribute("href", `./booking.html?venue=${encodeURIComponent(venue)}&sport=${encodeURIComponent(sport)}&venueId=${encodeURIComponent(venueId)}&sportId=${encodeURIComponent(sportId)}`);
-  });
-};
-
-const initSlotSelection = () => {
-  const slots = document.querySelectorAll("[data-slot-card]");
-  const slotOutput = document.querySelector("[data-selected-slot]");
-  const form = document.querySelector("[data-booking-form]");
-
-  if (!slots.length) {
-    return;
-  }
-
-  slots.forEach((slot) => {
-    slot.addEventListener("click", () => {
-      slots.forEach((card) => card.classList.remove("is-selected"));
-      slot.classList.add("is-selected");
-      state.selectedSlot = slot.getAttribute("data-slot-time");
-      if (slotOutput) {
-        slotOutput.textContent = state.selectedSlot;
-      }
-    });
-  });
-
-  if (form) {
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      if (!state.selectedSlot) {
-        showToast("Select a slot before continuing.");
-        return;
-      }
-
-      const name = form.querySelector('input[name="name"]')?.value?.trim();
-      if (!name) {
-        showToast("Enter your name to continue.");
-        return;
-      }
-
-      try {
-        const venueId = form.querySelector('input[name="venueId"]')?.value;
-        const sportId = form.querySelector('input[name="sportId"]')?.value;
-        if (venueId && sportId) {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          const date = tomorrow.toISOString().slice(0, 10);
-          await fetch(`${apiBase}/api/v1/slots?venueId=${encodeURIComponent(venueId)}&sportId=${encodeURIComponent(sportId)}&date=${date}&duration=1`);
-        }
-      } catch {
-        // Best-effort preview call only.
-      }
-
-      showToast(`Slot ${state.selectedSlot} reserved for checkout.`);
-    });
-  }
-};
-
-const hydrateFromBackend = async () => {
-  try {
-    const response = await fetch(`${apiBase}/api/v1/frontend/bootstrap`);
-    if (!response.ok) {
-      return;
-    }
-
-    const payload = await response.json();
-    const data = payload.data || {};
-    if (Array.isArray(data.sports) && data.sports.length) {
-      state.sports = data.sports;
-    }
-    if (Array.isArray(data.venues) && data.venues.length) {
-      state.venues = data.venues;
-    }
-  } catch {
-    // Static fallback is already in state.
   }
 };
 
@@ -405,26 +215,360 @@ const syncActiveNav = () => {
   });
 };
 
-const initPageActions = () => {
-  document.querySelectorAll("[data-demo-action]").forEach((button) => {
-    button.addEventListener("click", () => {
-      showToast(button.getAttribute("data-demo-action") || "Action completed.");
-    });
+const renderActivities = () => {
+  const targets = document.querySelectorAll("[data-activity-grid]");
+  if (!targets.length) {
+    return;
+  }
+
+  const cards = venue.activities.map((activity) => `
+    <article class="activity-card fade-up">
+      <span class="highlight-card__kicker">${formatCurrency(activity.price)} / session</span>
+      <h3>${activity.name}</h3>
+      <p>${activity.label}</p>
+      <a class="button button--secondary button--small" href="./booking.html?activity=${encodeURIComponent(activity.name)}" data-ripple>Book ${activity.name}</a>
+    </article>
+  `).join("");
+
+  targets.forEach((target) => {
+    target.innerHTML = cards;
   });
 };
 
-window.addEventListener("load", async () => {
+const renderVenueCards = () => {
+  const targets = document.querySelectorAll("[data-venue-grid]");
+  if (!targets.length) {
+    return;
+  }
+
+  const markup = `
+    <article class="arena-card fade-up">
+      <div class="arena-card__media">
+        <div class="arena-card__poster"></div>
+      </div>
+      <div class="arena-card__body">
+        <div class="arena-card__topline">
+          <h3 class="arena-card__title">${venue.name}</h3>
+          <span class="inline-chip chip--accent">Single venue</span>
+        </div>
+        <p class="arena-card__location">${venue.location}</p>
+        <div class="arena-card__badges">
+          <span class="chip">${venue.activities.length} activities</span>
+          <span class="chip">Open daily</span>
+          <span class="chip">Instant booking</span>
+        </div>
+        <div class="price-row" style="margin-top: 18px;">
+          <strong class="price">${formatCurrency(venue.activities[0].price)}</strong>
+          <a class="button button--primary button--small" href="./booking.html" data-ripple>Book this ground</a>
+        </div>
+      </div>
+    </article>
+  `;
+
+  targets.forEach((target) => {
+    target.innerHTML = markup;
+  });
+};
+
+const getActivityByName = (value) => venue.activities.find((activity) => activity.name === value || activity.id === value) || venue.activities[0];
+
+const getSelectedActivity = () => {
+  const params = new URLSearchParams(window.location.search);
+  const query = params.get("activity");
+  return getActivityByName(query);
+};
+
+const renderBookingActivityOptions = () => {
+  const select = document.querySelector("[data-activity-select]");
+  if (!select) {
+    return;
+  }
+
+  const selected = getSelectedActivity();
+  state.selectedActivity = selected.id;
+
+  select.innerHTML = venue.activities.map((activity) => `
+    <option value="${activity.id}" ${activity.id === selected.id ? "selected" : ""}>${activity.name}</option>
+  `).join("");
+
+  const updatePrice = () => {
+    const active = getActivityByName(select.value);
+    state.selectedActivity = active.id;
+    document.querySelectorAll("[data-booking-activity]").forEach((node) => {
+      node.textContent = active.name;
+    });
+    document.querySelectorAll("[data-booking-price]").forEach((node) => {
+      node.textContent = formatCurrency(active.price);
+    });
+  };
+
+  select.addEventListener("change", updatePrice);
+  updatePrice();
+};
+
+const renderBookingSlots = () => {
+  const target = document.querySelector("[data-slot-grid]");
+  if (!target) {
+    return;
+  }
+
+  target.innerHTML = defaultSlots.map((slot, index) => `
+    <button class="slot-card ${index === 1 ? "is-selected" : ""}" type="button" data-slot-card data-slot-time="${slot.time}">
+      <span class="slot-card__time">${slot.time}</span>
+      <span class="muted-text">${slot.note}</span>
+      <span class="status-chip">${index < 3 ? "Morning" : "Evening"}</span>
+    </button>
+  `).join("");
+
+  target.querySelectorAll("[data-slot-card]").forEach((slot) => {
+    slot.addEventListener("click", () => {
+      target.querySelectorAll("[data-slot-card]").forEach((card) => card.classList.remove("is-selected"));
+      slot.classList.add("is-selected");
+      state.selectedSlot = slot.dataset.slotTime || defaultSlots[0].time;
+      document.querySelectorAll("[data-booking-slot]").forEach((node) => {
+        node.textContent = state.selectedSlot;
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-booking-slot]").forEach((node) => {
+    node.textContent = state.selectedSlot;
+  });
+};
+
+const initBookingForm = () => {
+  const form = document.querySelector("[data-booking-form]");
+  if (!form) {
+    return;
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const name = form.querySelector('input[name="name"]')?.value?.trim();
+    const phone = form.querySelector('input[name="phone"]')?.value?.trim();
+    const date = form.querySelector('input[name="date"]')?.value;
+    const activity = getActivityByName(state.selectedActivity);
+
+    if (!name || !phone || !date) {
+      showToast("Complete your name, phone number, and date first.");
+      return;
+    }
+
+    const slotFee = activity.price;
+    const gstAmount = Math.round(slotFee * 0.18);
+    const convenienceFee = 20;
+    const totalAmount = slotFee + gstAmount + convenienceFee;
+
+    const draft = {
+      bookingRef: `FD-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+      venueName: venue.name,
+      activity: activity.name,
+      activityId: activity.id,
+      date,
+      slot: state.selectedSlot,
+      name,
+      phone,
+      slotFee,
+      gstAmount,
+      convenienceFee,
+      totalAmount,
+      status: "Pending",
+      payment: "Awaiting payment"
+    };
+
+    saveDraftBooking(draft);
+    window.location.href = "./payment.html";
+  });
+};
+
+const renderPaymentSummary = () => {
+  const draft = getDraftBooking();
+  if (!draft) {
+    return;
+  }
+
+  document.querySelectorAll("[data-payment-ref]").forEach((node) => { node.textContent = draft.bookingRef; });
+  document.querySelectorAll("[data-payment-venue]").forEach((node) => { node.textContent = draft.venueName; });
+  document.querySelectorAll("[data-payment-activity]").forEach((node) => { node.textContent = draft.activity; });
+  document.querySelectorAll("[data-payment-date]").forEach((node) => { node.textContent = draft.date; });
+  document.querySelectorAll("[data-payment-slot]").forEach((node) => { node.textContent = draft.slot; });
+  document.querySelectorAll("[data-payment-slot-fee]").forEach((node) => { node.textContent = formatCurrency(draft.slotFee); });
+  document.querySelectorAll("[data-payment-gst]").forEach((node) => { node.textContent = formatCurrency(draft.gstAmount); });
+  document.querySelectorAll("[data-payment-fee]").forEach((node) => { node.textContent = formatCurrency(draft.convenienceFee); });
+  document.querySelectorAll("[data-payment-total]").forEach((node) => { node.textContent = formatCurrency(draft.totalAmount); });
+};
+
+const completeBooking = (paymentId) => {
+  const draft = getDraftBooking();
+  if (!draft) {
+    showToast("Booking draft is missing.");
+    return;
+  }
+
+  const bookings = getStoredBookings();
+  const completed = {
+    id: draft.bookingRef,
+    activity: draft.activity,
+    date: draft.date,
+    slot: draft.slot,
+    amount: draft.totalAmount,
+    status: "Confirmed",
+    payment: paymentId ? `Paid via Razorpay (${paymentId})` : "Paid",
+    customer: draft.name
+  };
+
+  saveStoredBookings([completed, ...bookings]);
+  saveDraftBooking({
+    ...draft,
+    status: "Confirmed",
+    payment: completed.payment
+  });
+  window.location.href = "./success.html";
+};
+
+const initPaymentPage = () => {
+  const payButton = document.querySelector("[data-pay-now]");
+  if (!payButton) {
+    return;
+  }
+
+  payButton.addEventListener("click", () => {
+    const draft = getDraftBooking();
+    if (!draft) {
+      showToast("Start from the booking page before opening payment.");
+      return;
+    }
+
+    const razorpayKey = document.body.dataset.razorpayKey || "";
+    if (window.Razorpay && razorpayKey) {
+      const options = {
+        key: razorpayKey,
+        amount: draft.totalAmount * 100,
+        currency: "INR",
+        name: venue.name,
+        description: `${draft.activity} booking`,
+        handler: (response) => {
+          completeBooking(response.razorpay_payment_id || "rzp-demo");
+        },
+        prefill: {
+          name: draft.name,
+          contact: draft.phone
+        },
+        notes: {
+          bookingRef: draft.bookingRef
+        },
+        theme: {
+          color: "#ff6a1d"
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+      return;
+    }
+
+    payButton.disabled = true;
+    payButton.textContent = "Processing...";
+    window.setTimeout(() => {
+      completeBooking("demo-payment");
+    }, 1200);
+  });
+};
+
+const renderSuccessPage = () => {
+  const page = document.body.dataset.page;
+  if (page !== "success") {
+    return;
+  }
+
+  const draft = getDraftBooking();
+  if (!draft) {
+    return;
+  }
+
+  document.querySelectorAll("[data-success-ref]").forEach((node) => { node.textContent = draft.bookingRef; });
+  document.querySelectorAll("[data-success-venue]").forEach((node) => { node.textContent = draft.venueName; });
+  document.querySelectorAll("[data-success-activity]").forEach((node) => { node.textContent = draft.activity; });
+  document.querySelectorAll("[data-success-date]").forEach((node) => { node.textContent = draft.date; });
+  document.querySelectorAll("[data-success-slot]").forEach((node) => { node.textContent = draft.slot; });
+  document.querySelectorAll("[data-success-total]").forEach((node) => { node.textContent = formatCurrency(draft.totalAmount); });
+
+  const badge = document.querySelector("[data-success-badge]");
+  if (badge && window.gsap && !prefersReducedMotion) {
+    gsap.fromTo(badge, { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.7)" });
+  }
+};
+
+const renderBookingsPage = () => {
+  const target = document.querySelector("[data-bookings-list]");
+  if (!target) {
+    return;
+  }
+
+  const bookings = getStoredBookings();
+  target.innerHTML = bookings.map((booking) => `
+    <article class="booking-list-card fade-up">
+      <div class="meta-row">
+        <div>
+          <span class="highlight-card__kicker">${booking.id}</span>
+          <h3>${booking.activity}</h3>
+        </div>
+        <span class="status-pill ${booking.status === "Confirmed" ? "is-confirmed" : "is-pending"}">${booking.status}</span>
+      </div>
+      <div class="detail-list" style="margin-top: 16px;">
+        <div class="detail-item"><span>Date</span><strong>${booking.date}</strong></div>
+        <div class="detail-item"><span>Slot</span><strong>${booking.slot}</strong></div>
+        <div class="detail-item"><span>Amount</span><strong>${formatCurrency(booking.amount)}</strong></div>
+        <div class="detail-item"><span>Payment</span><strong>${booking.payment}</strong></div>
+      </div>
+    </article>
+  `).join("");
+};
+
+const initProfilePage = () => {
+  const profileName = document.querySelector("[data-profile-name]");
+  if (!profileName) {
+    return;
+  }
+
+  const bookings = getStoredBookings();
+  const latest = getDraftBooking();
+  profileName.textContent = latest?.name || "Field Door Player";
+
+  const totalBookings = document.querySelector("[data-profile-bookings]");
+  if (totalBookings) {
+    totalBookings.textContent = String(bookings.length);
+  }
+};
+
+const initContactForm = () => {
+  const form = document.querySelector("[data-contact-form]");
+  if (!form) {
+    return;
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    form.reset();
+    showToast("Message received. The team will reach out shortly.");
+  });
+};
+
+window.addEventListener("load", () => {
   syncActiveNav();
-  await hydrateFromBackend();
-  renderCategoryRail(state.sports);
-  renderVenueGrids();
-  populateBookingPage();
   initHeader();
-  initRevealObserver();
-  initGsapHero();
-  initRipples();
+  renderActivities();
+  renderVenueCards();
+  renderBookingActivityOptions();
+  renderBookingSlots();
+  initBookingForm();
+  renderPaymentSummary();
+  initPaymentPage();
+  renderSuccessPage();
+  renderBookingsPage();
+  initProfilePage();
   initContactForm();
-  initLoginForm();
-  initSlotSelection();
-  initPageActions();
+  initRevealObserver();
+  initHeroMotion();
+  initRipples();
 });

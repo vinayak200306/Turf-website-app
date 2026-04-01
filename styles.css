@@ -168,8 +168,9 @@ button {
 
 .brand__mark img,
 .brand__mark svg {
-  width: 26px;
-  height: 26px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .brand__eyebrow {
@@ -368,6 +369,12 @@ button {
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+}
+
+.activity-card {
+  padding: 24px;
+  display: grid;
+  gap: 14px;
 }
 
 .metric-card {
@@ -1088,6 +1095,129 @@ button {
 .toast.is-visible {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+.success-orb {
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 177, 86, 0.34), transparent 30%),
+    linear-gradient(135deg, rgba(255, 106, 29, 0.26), rgba(255, 106, 29, 0.08));
+  border: 1px solid rgba(255, 166, 92, 0.28);
+  box-shadow: 0 24px 64px rgba(255, 106, 29, 0.18);
+}
+
+.success-orb::before {
+  content: "OK";
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 44px;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.success-stack {
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+}
+
+.success-stack--center {
+  justify-items: center;
+  text-align: center;
+}
+
+.booking-list {
+  display: grid;
+  gap: 18px;
+}
+
+.booking-list-card {
+  padding: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+    var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 166, 92, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted-strong);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-pill.is-confirmed {
+  background: rgba(73, 211, 157, 0.12);
+  border-color: rgba(73, 211, 157, 0.34);
+  color: #9df0c9;
+}
+
+.status-pill.is-pending {
+  background: rgba(255, 177, 86, 0.12);
+  border-color: rgba(255, 177, 86, 0.3);
+  color: #ffd29b;
+}
+
+.settings-list {
+  display: grid;
+  gap: 14px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 166, 92, 0.08);
+}
+
+.settings-row:last-child {
+  border-bottom: 0;
+}
+
+.switch {
+  position: relative;
+  width: 54px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 166, 92, 0.18);
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.switch.is-on {
+  background: rgba(255, 106, 29, 0.22);
+  border-color: rgba(255, 106, 29, 0.34);
+}
+
+.switch.is-on::after {
+  left: auto;
+  right: 3px;
 }
 
 .ripple {
