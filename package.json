@@ -1,0 +1,21 @@
+{
+  "name": "field-door-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace @fielddoor/api\" \"npm run dev --workspace @fielddoor/web\"",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces",
+    "seed": "npm run seed --workspace @fielddoor/api"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.3"
+  }
+}
