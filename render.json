@@ -1,0 +1,6 @@
+{
+  "rootDirectory": "apps/api",
+  "build": {
+    "cmd": "npm run build --workspace @fielddoor/api"
+  }
+}
