@@ -1,6 +1,6 @@
 {
-  "rootDirectory": "apps/api",
   "build": {
     "cmd": "npm run build --workspace @fielddoor/api"
-  }
+  },
+  "startCmd": "node apps/api/dist/server.js"
 }
