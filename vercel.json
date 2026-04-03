@@ -1,6 +1,0 @@
-{
-  "rootDirectory": "apps/web",
-  "framework": "nextjs",
-  "buildCommand": "npm run build --workspace @fielddoor/web",
-  "outputDirectory": ".next"
-}
